@@ -4,6 +4,8 @@ models/
 features/
 results/
 datasets/
+adv_images/
+results.json
 
 tests/data/
 *.pt
