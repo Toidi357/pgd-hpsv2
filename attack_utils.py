@@ -74,8 +74,9 @@ def preprocess_data(preprocess_val, tokenizer, device, file_path: str, prompt: s
 def calculateHPS(model, image, text) -> List[float]:
     with torch.inference_mode(), torch.amp.autocast("cuda"):
         # running into out of memory errors on the server
-        image.half()
-        text.half()
+        #image.half()
+        #text.half()
+        
         # from train.py
         output = model(image, text)
         image_features, text_features, logit_scale = output["image_features"], output["text_features"], output["logit_scale"]

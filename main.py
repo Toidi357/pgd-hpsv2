@@ -93,7 +93,7 @@ if __name__ == '__main__':
     # load images from the downloaded benchmark dataset
     images = get_first_k_images(10)
     
-    model.half() # running into out of memory errors on the server
+    # model.half() # running into out of memory errors on the server
     
     # initialize our PGD attack class
     attack = attack_utils.PGD(model, eps=8/(255*1), alpha=1/(255*1), steps=10)
