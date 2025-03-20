@@ -54,7 +54,7 @@ class PGD():
             max_norm = (1 - mean) / std
             image_adv = torch.max(torch.min(image_adv, max_norm), min_norm)
             
-            image_adv = image_adv.detach()
+            image_adv.detach_()
             image_adv.requires_grad = True
 
         return image_adv
@@ -72,16 +72,17 @@ def preprocess_data(preprocess_val, tokenizer, device, file_path: str, prompt: s
 
 
 def calculateHPS(model, image, text) -> List[float]:
-    with torch.no_grad():
-        # Calculate the HPS
-        with torch.amp.autocast("cuda"):          
-            # from train.py
-            output = model(image, text)
-            image_features, text_features, logit_scale = output["image_features"], output["text_features"], output["logit_scale"]
-            logits_per_text = logit_scale * text_features @ image_features.T
-            hps_score = torch.diagonal(logits_per_text).cpu().numpy()
-            
-        return hps_score
+    with torch.inference_mode(), torch.amp.autocast("cuda"):
+        # running into out of memory errors on the server
+        image.half()
+        text.half()
+        # from train.py
+        output = model(image, text)
+        image_features, text_features, logit_scale = output["image_features"], output["text_features"], output["logit_scale"]
+        logits_per_text = logit_scale * text_features @ image_features.T
+        hps_score = torch.diagonal(logits_per_text).cpu().numpy()
+        
+    return hps_score
         
 
 # chatgpt function that takes the preprocessed image and takes it back to a normal image

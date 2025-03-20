@@ -1,0 +1,11 @@
+torch
+torchvision
+torchaudio
+pillow
+numpy
+torchattacks
+tqdm
+huggingface_hub
+clint
+ftfy
+regex

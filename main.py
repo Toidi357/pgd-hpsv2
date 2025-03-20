@@ -74,6 +74,9 @@ def get_first_k_images(k: int = 10) -> Dict[str, List[Tuple[str, str]]]:
 if __name__ == '__main__':
     warnings.filterwarnings("ignore", category=UserWarning)
     start_time = time.time()
+    
+    torch.cuda.empty_cache()
+    torch.cuda.ipc_collect()
 
     pprint("Initializing model...")
     model_dict = {}
@@ -90,8 +93,10 @@ if __name__ == '__main__':
     # load images from the downloaded benchmark dataset
     images = get_first_k_images(10)
     
+    model.half() # running into out of memory errors on the server
+    
     # initialize our PGD attack class
-    attack = attack_utils.PGD(model, eps=8/(255*1), alpha=1/(255*1), steps=2)
+    attack = attack_utils.PGD(model, eps=8/(255*1), alpha=1/(255*1), steps=10)
     
     # used for writing images to disk
     to_pil = transforms.ToPILImage()
@@ -139,10 +144,9 @@ if __name__ == '__main__':
             "pgd_hps_scores": pgd_scores,
         }
         
-        break
     
     pprint(scores)
 
     # write to disk
     with open('results.json', 'w') as f:
-        f.write(json.dumps(scores))
+        f.write(json.dumps(scores, sort_keys=True))
